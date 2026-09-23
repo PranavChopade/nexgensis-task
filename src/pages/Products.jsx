@@ -2,13 +2,15 @@ import Navbar from "../components/dashboard/Navbar"
 import ProductTable from "../components/dashboard/ProductTable"
 import ProductCard from "../components/dashboard/ProductCard"
 import { useEffect, useState } from "react"
-import { fetchProducts } from "../services/products"
-
+import { fetchProducts, searchProducts } from "../services/products/index"
 const Products = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [productsData, setProductsData] = useState([])
 
+  const [search, setSearch] = useState("");
+
+  // fetch products
   const fetchData = async () => {
     setLoading(true)
     setError("")
@@ -26,6 +28,35 @@ const Products = () => {
   useEffect(() => {
     fetchData()
   }, [])
+
+  // debounce search
+  useEffect(() => {
+    if (!search.trim()) {
+      fetchData();
+      return;
+    }
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      setLoading(true);
+      setError("");
+
+      try {
+        const data = await searchProducts(search, controller.signal);
+        setProductsData(data.products || []);
+      } catch (error) {
+        if (error.name === "CanceledError") return;
+        setError(error.message || "Failed to search products");
+      } finally {
+        setLoading(false);
+      }
+    }, 500);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    }
+  }, [search]);
+
 
   if (loading) {
     return (
@@ -68,15 +99,21 @@ const Products = () => {
     )
   }
 
-  if (productsData.length === 0) {
+  if (productsData.length === 0 && search) {
     return (
       <div className="min-h-screen bg-[#0b1120]">
         <Navbar />
 
-        <div className="flex min-h-[400px] items-center justify-center">
+        <div className="flex min-h-[400px] flex-col items-center justify-center">
           <p className="text-sm text-slate-400">
-            No products found.
+            No products found for "{search}".
           </p>
+          <button
+            onClick={() => setSearch("")}
+            className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
+          >
+            Clear Search
+          </button>
         </div>
       </div>
     )
@@ -87,6 +124,15 @@ const Products = () => {
       <Navbar />
 
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <div className="mb-6 flex flex-col gap-3 md:flex-row">
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="rounded-lg border border-slate-700 bg-[#111827] px-4 py-2.5 text-sm text-white outline-none"
+          />
+        </div>
         <div className="hidden md:block">
           <ProductTable products={productsData} />
         </div>
