@@ -2,13 +2,15 @@ import Navbar from "../components/dashboard/Navbar"
 import ProductTable from "../components/dashboard/ProductTable"
 import ProductCard from "../components/dashboard/ProductCard"
 import { useEffect, useState } from "react"
-import { fetchProducts, searchProducts } from "../services/products/index"
+import { fetchCategories, fetchProducts, fetchProductsByCategory, searchProducts } from "../services/products/index"
 const Products = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [productsData, setProductsData] = useState([])
-
+  // sorting states
   const [search, setSearch] = useState("");
+  const [categories, setCategories] = useState([]);
+  const [category, setCategory] = useState("");
 
   // fetch products
   const fetchData = async () => {
@@ -57,6 +59,43 @@ const Products = () => {
     }
   }, [search]);
 
+  //fetch categories
+  useEffect(() => {
+    const getCategories = async () => {
+      try {
+        const data = await fetchCategories();
+        setCategories(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    getCategories();
+  }, []);
+
+  // fetch by category
+  useEffect(() => {
+    if (!category) {
+      fetchData();
+      return;
+    }
+
+    const getCategoryProducts = async () => {
+      setLoading(true);
+      setError("");
+
+      try {
+        const data = await fetchProductsByCategory(category);
+        setProductsData(data.products || []);
+      } catch (error) {
+        setError(error.message || "Failed to load category products");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getCategoryProducts();
+  }, [category]);
 
   if (loading) {
     return (
@@ -132,6 +171,19 @@ const Products = () => {
             onChange={(e) => setSearch(e.target.value)}
             className="rounded-lg border border-slate-700 bg-[#111827] px-4 py-2.5 text-sm text-white outline-none"
           />
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="rounded-lg border border-slate-700 bg-[#111827] px-4 py-2.5 text-sm text-white"
+          >
+            <option value="">All Categories</option>
+
+            {categories.map((item) => (
+              <option key={item.slug} value={item.slug}>
+                {item.name}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="hidden md:block">
           <ProductTable products={productsData} />

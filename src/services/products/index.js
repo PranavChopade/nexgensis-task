@@ -9,3 +9,13 @@ export const searchProducts = async (query, signal) => {
   const response = await api.get(`/products/search?q=${query}`, { signal });
   return response.data;
 };
+
+export const fetchCategories = async () => {
+  const response = await api.get('/products/categories');
+  return response.data;
+};
+
+export const fetchProductsByCategory = async (category) => {
+  const response = await api.get(`/products/category/${category}`);
+  return response.data;
+};
