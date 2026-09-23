@@ -33,33 +33,6 @@ const Products = () => {
     fetchData()
   }, [])
 
-  // debounce search
-  useEffect(() => {
-    if (!search.trim()) {
-      fetchData();
-      return;
-    }
-    const controller = new AbortController();
-    const timer = setTimeout(async () => {
-      setLoading(true);
-      setError("");
-
-      try {
-        const data = await searchProducts(search, controller.signal);
-        setProductsData(data.products || []);
-      } catch (error) {
-        if (error.name === "CanceledError") return;
-        setError(error.message || "Failed to search products");
-      } finally {
-        setLoading(false);
-      }
-    }, 500);
-
-    return () => {
-      clearTimeout(timer);
-      controller.abort();
-    }
-  }, [search]);
 
   //fetch categories
   useEffect(() => {
@@ -75,49 +48,70 @@ const Products = () => {
     getCategories();
   }, []);
 
-  // fetch by category
-  useEffect(() => {
-    if (!category) {
-      fetchData();
-      return;
-    }
+  const sortProductsData = (products) => {
+    if (!sortBy) return products;
 
-    const getCategoryProducts = async () => {
+    return [...products].sort((a, b) => {
+      if (sortBy === "price") {
+        return order === "asc"
+          ? a.price - b.price
+          : b.price - a.price;
+      }
+
+      if (sortBy === "rating") {
+        return order === "asc"
+          ? a.rating - b.rating
+          : b.rating - a.rating;
+      }
+
+      if (sortBy === "title") {
+        return order === "asc"
+          ? a.title.localeCompare(b.title)
+          : b.title.localeCompare(a.title);
+      }
+
+      return 0;
+    });
+  };
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const getProducts = async () => {
       setLoading(true);
       setError("");
 
       try {
-        const data = await fetchProductsByCategory(category);
-        setProductsData(data.products || []);
+        let data;
+
+        if (search.trim()) {
+          data = await searchProducts(search, controller.signal);
+        } else if (category) {
+          data = await fetchProductsByCategory(category);
+        } else {
+          data = await fetchProducts();
+        }
+
+        const sortedProducts = sortProductsData(data.products || []);
+
+        setProductsData(sortedProducts);
       } catch (error) {
-        setError(error.message || "Failed to load category products");
+        if (error.name === "CanceledError") return;
+
+        setError(error.message || "Failed to load products");
       } finally {
         setLoading(false);
       }
     };
 
-    getCategoryProducts();
-  }, [category]);
+    const timer = setTimeout(() => {
+      getProducts();
+    }, search.trim() ? 500 : 0);
 
-  useEffect(() => {
-    if (!sortBy) return;
-
-    const getSortedProducts = async () => {
-      setLoading(true);
-      setError("");
-
-      try {
-        const data = await sortProducts(sortBy, order);
-        setProductsData(data.products || []);
-      } catch (error) {
-        setError(error.message || "Failed to sort products");
-      } finally {
-        setLoading(false);
-      }
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
     };
-
-    getSortedProducts();
-  }, [sortBy, order]);
+  }, [search, category, sortBy, order]);
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0b1120]">
@@ -189,12 +183,18 @@ const Products = () => {
             type="text"
             placeholder="Search products..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCategory("");
+            }}
             className="rounded-lg border border-slate-700 bg-[#111827] px-4 py-2.5 text-sm text-white outline-none"
           />
           <select
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            onChange={(e) => {
+              setCategory(e.target.value);
+              setSearch("");
+            }}
             className="rounded-lg border border-slate-700 bg-[#111827] px-4 py-2.5 text-sm text-white"
           >
             <option value="">All Categories</option>
