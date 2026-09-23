@@ -19,3 +19,7 @@ export const fetchProductsByCategory = async (category) => {
   const response = await api.get(`/products/category/${category}`);
   return response.data;
 };
+export const sortProducts = async (sortBy, order) => {
+  const response = await api.get(`/products?sortBy=${sortBy}&order=${order}`);
+  return response.data;
+};

@@ -2,7 +2,7 @@ import Navbar from "../components/dashboard/Navbar"
 import ProductTable from "../components/dashboard/ProductTable"
 import ProductCard from "../components/dashboard/ProductCard"
 import { useEffect, useState } from "react"
-import { fetchCategories, fetchProducts, fetchProductsByCategory, searchProducts } from "../services/products/index"
+import { fetchCategories, fetchProducts, fetchProductsByCategory, searchProducts, sortProducts } from "../services/products/index"
 const Products = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -11,6 +11,8 @@ const Products = () => {
   const [search, setSearch] = useState("");
   const [categories, setCategories] = useState([]);
   const [category, setCategory] = useState("");
+  const [sortBy, setSortBy] = useState("");
+  const [order, setOrder] = useState("asc");
 
   // fetch products
   const fetchData = async () => {
@@ -97,6 +99,25 @@ const Products = () => {
     getCategoryProducts();
   }, [category]);
 
+  useEffect(() => {
+    if (!sortBy) return;
+
+    const getSortedProducts = async () => {
+      setLoading(true);
+      setError("");
+
+      try {
+        const data = await sortProducts(sortBy, order);
+        setProductsData(data.products || []);
+      } catch (error) {
+        setError(error.message || "Failed to sort products");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getSortedProducts();
+  }, [sortBy, order]);
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0b1120]">
@@ -184,6 +205,27 @@ const Products = () => {
               </option>
             ))}
           </select>
+          <select
+            value={sortBy}
+            onChange={(e) => {
+              const [field, direction] = e.target.value.split("-");
+              setSortBy(field);
+              setOrder(direction);
+            }}
+            className="rounded-lg border border-slate-700 bg-[#111827] px-4 py-2.5 text-sm text-white outline-none"
+          >
+            <option value="">Sort By</option>
+
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+
+            <option value="rating-asc">Rating: Low to High</option>
+            <option value="rating-desc">Rating: High to Low</option>
+
+            <option value="title-asc">Title: A to Z</option>
+            <option value="title-desc">Title: Z to A</option>
+          </select>
+
         </div>
         <div className="hidden md:block">
           <ProductTable products={productsData} />
