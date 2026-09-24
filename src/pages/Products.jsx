@@ -19,6 +19,7 @@ const Products = () => {
 
   const [page, setPage] = useState(Number(searchParams.get("page")) || 1);
   const [limit, setLimit] = useState(Number(searchParams.get("limit")) || 10);
+  const [retry, setRetry] = useState(0);
   const [total, setTotal] = useState(0);
   const skip = (page - 1) * limit;
   const totalPages = Math.ceil(total / limit);
@@ -31,26 +32,6 @@ const Products = () => {
   const handleNext = () => {
     setPage((prev) => prev + 1);
   }
-  // fetch products
-  const fetchData = async () => {
-    setLoading(true)
-    setError("")
-
-    try {
-      const data = await fetchProducts(limit, skip)
-      setTotal(data.total)
-      setProductsData(data.products || [])
-    } catch (error) {
-      setError(error.message || "Failed to load products")
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchData()
-  }, [])
-
 
   //fetch categories
   useEffect(() => {
@@ -130,7 +111,7 @@ const Products = () => {
       clearTimeout(timer);
       controller.abort();
     };
-  }, [search, category, sortBy, order, page, limit]);
+  }, [search, category, sortBy, order, page, limit, retry]);
 
   // setting up params
   useEffect(() => {
@@ -173,7 +154,7 @@ const Products = () => {
             </p>
 
             <button
-              onClick={fetchData}
+              onClick={() => setRetry((prev) => prev + 1)}
               className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 cursor-pointer"
             >
               Retry
