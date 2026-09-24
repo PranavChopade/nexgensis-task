@@ -5,17 +5,17 @@ import Products from "./pages/Products"
 import ProductDetails from "./pages/ProductDetails"
 import AddProduct from "./pages/AddProduct"
 import UpdateProduct from "./pages/UpdateProduct"
+import DashboardLayout from "./components/DashboardLayout"
 const App = () => {
   return (
     <Routes>
       <Route path="/" element={<Login />} />
-      <Route path="/products" element={
-        <ProtectedRoute>
-          <Products />
-        </ProtectedRoute>} />
-      <Route path="/products/:id" element={<ProductDetails />} />
-      <Route path="/products/add" element={<AddProduct />} />
-      <Route path="/products/:id/edit" element={<UpdateProduct />} />
+      <Route path="/products" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+        <Route index element={<Products />} />
+        <Route path=":id" element={<ProductDetails />} />
+        <Route path="add" element={<AddProduct />} />
+        <Route path=":id/edit" element={<UpdateProduct />} />
+      </Route>
     </Routes>
   )
 }
