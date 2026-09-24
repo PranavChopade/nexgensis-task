@@ -16,13 +16,28 @@ const Products = () => {
   const [sortBy, setSortBy] = useState(searchParams.get("sortBy") || "");
   const [order, setOrder] = useState(searchParams.get("order") || "asc");
 
+  const [page, setPage] = useState(Number(searchParams.get("page")) || 1);
+  const [limit, setLimit] = useState(Number(searchParams.get("limit")) || 10);
+  const [total, setTotal] = useState(0);
+  const skip = (page - 1) * limit;
+  const totalPages = Math.ceil(total / limit);
+  const start = (page - 1) * limit + 1;
+  const end = Math.min(page * limit, total);
+
+  const handlePrev = () => {
+    setPage((prev) => prev - 1);
+  }
+  const handleNext = () => {
+    setPage((prev) => prev + 1);
+  }
   // fetch products
   const fetchData = async () => {
     setLoading(true)
     setError("")
 
     try {
-      const data = await fetchProducts()
+      const data = await fetchProducts(limit, skip)
+      setTotal(data.total)
       setProductsData(data.products || [])
     } catch (error) {
       setError(error.message || "Failed to load products")
@@ -86,16 +101,17 @@ const Products = () => {
         let data;
 
         if (search.trim()) {
-          data = await searchProducts(search, controller.signal);
+          data = await searchProducts(search, limit, skip, controller.signal);
         } else if (category) {
-          data = await fetchProductsByCategory(category);
+          data = await fetchProductsByCategory(category, limit, skip,);
         } else {
-          data = await fetchProducts();
+          data = await fetchProducts(limit, skip);
         }
 
         const sortedProducts = sortProductsData(data.products || []);
 
         setProductsData(sortedProducts);
+        setTotal(data.total);
       } catch (error) {
         if (error.name === "CanceledError") return;
 
@@ -113,7 +129,8 @@ const Products = () => {
       clearTimeout(timer);
       controller.abort();
     };
-  }, [search, category, sortBy, order]);
+  }, [search, category, sortBy, order, page, limit]);
+
   // setting up params
   useEffect(() => {
     const params = {};
@@ -124,9 +141,15 @@ const Products = () => {
       params.sortBy = sortBy;
       params.order = order;
     }
-
+    params.page = page;
+    params.limit = limit;
     setSearchParams(params);
-  }, [search, category, sortBy, order]);
+  }, [search, category, sortBy, order, page, limit]);
+
+  const handlePageChange = (pageNumber) => {
+    setPage(pageNumber);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0b1120]">
@@ -243,7 +266,18 @@ const Products = () => {
 
         </div>
         <div className="hidden md:block">
-          <ProductTable products={productsData} />
+          <ProductTable
+            products={productsData}
+            handleNext={handleNext}
+            handlePrev={handlePrev}
+            page={page}
+            total={total}
+            start={start}
+            end={end}
+            totalPages={totalPages}
+            limit={limit}
+            setLimit={setLimit}
+            handlePageChange={handlePageChange} />
         </div>
 
         <div className="space-y-3 md:hidden">
