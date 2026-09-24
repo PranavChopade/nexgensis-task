@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { fetchProductById } from '../services/products/index';
-import Navbar from '../components/dashboard/Navbar';
 import Loader from "../components/dashboard/Loader";
 import { deleteProduct } from "../services/products/index";
 
@@ -51,15 +50,22 @@ const ProductDetails = () => {
   if (error || !product) {
     return (
       <div className="min-h-screen bg-[#0b1120]">
-        <Navbar />
         <div className="flex min-h-[400px] items-center justify-center">
-          <div className="text-center">
-            <h2 className="text-xl font-semibold text-white">
-              Product not found
-            </h2>
-            <p className="mt-2 text-sm text-slate-400">
-              The product you are looking for does not exist.
-            </p>
+          <div className="text-center space-y-4">
+            <div>
+              <h2 className="text-xl font-semibold text-white">
+                Product not found
+              </h2>
+              <p className="mt-2 text-sm text-slate-400">
+                The product you are looking for does not exist.
+              </p>
+            </div>
+            <button
+              onClick={() => navigate("/products")}
+              className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-500 cursor-pointer"
+            >
+              Back to Products
+            </button>
           </div>
         </div>
       </div>
@@ -67,7 +73,6 @@ const ProductDetails = () => {
   }
   return (
     <div className="min-h-screen bg-[#0b1120]">
-      <Navbar />
       <main className="mx-auto max-w-6xl px-4 py-8">
         <div className="grid gap-8 rounded-xl bg-[#111827] p-6 md:grid-cols-2">
           {/* Product Image */}

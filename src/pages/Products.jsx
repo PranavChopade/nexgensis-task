@@ -1,9 +1,9 @@
-import Navbar from "../components/dashboard/Navbar"
 import ProductTable from "../components/dashboard/ProductTable"
 import ProductCard from "../components/dashboard/ProductCard"
 import { useEffect, useState } from "react"
 import { fetchCategories, fetchProducts, fetchProductsByCategory, searchProducts, sortProducts } from "../services/products/index"
 import { useNavigate, useSearchParams } from "react-router-dom"
+import Loader from "../components/dashboard/Loader"
 const Products = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -151,29 +151,21 @@ const Products = () => {
     setPage(pageNumber);
   };
 
+  useEffect(() => {
+    if (page > totalPages && totalPages > 0) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0b1120]">
-        <Navbar />
-
-        <div className="flex min-h-[400px] items-center justify-center">
-          <div className="flex flex-col items-center gap-3">
-            <span className="h-10 w-10 animate-spin rounded-full border-2 border-slate-700 border-t-blue-500" />
-
-            <p className="text-sm text-slate-400">
-              Loading products...
-            </p>
-          </div>
-        </div>
-      </div>
+      <Loader />
     )
   }
 
   if (error) {
     return (
       <div className="min-h-screen bg-[#0b1120]">
-        <Navbar />
-
         <div className="flex min-h-[400px] items-center justify-center">
           <div className="text-center">
             <p className="text-sm text-red-400">
@@ -182,7 +174,7 @@ const Products = () => {
 
             <button
               onClick={fetchData}
-              className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
+              className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 cursor-pointer"
             >
               Retry
             </button>
@@ -195,8 +187,6 @@ const Products = () => {
   if (productsData.length === 0 && search) {
     return (
       <div className="min-h-screen bg-[#0b1120]">
-        <Navbar />
-
         <div className="flex min-h-[400px] flex-col items-center justify-center">
           <p className="text-sm text-slate-400">
             No products found for "{search}".
@@ -214,8 +204,6 @@ const Products = () => {
 
   return (
     <div className="min-h-screen bg-[#0b1120]">
-      <Navbar />
-
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-col gap-3 md:flex-row">
           <input
@@ -225,6 +213,7 @@ const Products = () => {
             onChange={(e) => {
               setSearch(e.target.value);
               setCategory("");
+              setPage(1);
             }}
             className="rounded-lg border border-slate-700 bg-[#111827] px-4 py-2.5 text-sm text-white outline-none"
           />
@@ -233,6 +222,7 @@ const Products = () => {
             onChange={(e) => {
               setCategory(e.target.value);
               setSearch("");
+              setPage(1);
             }}
             className="rounded-lg border border-slate-700 bg-[#111827] px-4 py-2.5 text-sm text-white"
           >
@@ -250,6 +240,7 @@ const Products = () => {
               const [field, direction] = e.target.value.split("-");
               setSortBy(field);
               setOrder(direction);
+              setPage(1);
             }}
             className="rounded-lg border border-slate-700 bg-[#111827] px-4 py-2.5 text-sm text-white outline-none"
           >

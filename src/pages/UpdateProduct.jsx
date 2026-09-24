@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { fetchProductById, updateProduct } from "../services/products";
-import Navbar from "../components/dashboard/Navbar";
 import { useNavigate, useParams } from "react-router-dom";
 
 const UpdateProduct = () => {
@@ -46,7 +45,6 @@ const UpdateProduct = () => {
   }
   return (
     <div className="min-h-screen bg-[#0b1120]">
-      <Navbar />
       <main className="mx-auto max-w-3xl px-4 py-8">
         <div className="rounded-xl bg-[#111827] p-6">
           <div className="mb-6">
@@ -157,14 +155,14 @@ const UpdateProduct = () => {
                 type="button"
                 onClick={() => navigate('/products')}
                 disabled={submitting}
-                className="rounded-lg border border-slate-700 px-5 py-2.5 text-sm text-slate-300 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-lg border border-slate-700 px-5 py-2.5 text-sm text-slate-300 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={submitting}
-                className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
               >
                 {submitting ? 'Saving...' : 'Save Changes'}
               </button>

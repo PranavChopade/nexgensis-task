@@ -26,7 +26,6 @@ const Login = () => {
     setLoading(true)
     try {
       const data = await login(formData);
-      console.log("data:", data)
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("user", JSON.stringify(data));
       navigate("/products")
@@ -36,15 +35,6 @@ const Login = () => {
       setLoading(false)
     }
   };
-
-  if (loading) {
-    return <main className="flex justify-center items-center min-h-screen">
-      <div className="flex flex-col gap-2">
-        <span className="w-12 h-12 rounded-full border-2 border-gray-700 border-t-blue-500 animate-spin" />
-        <span>Loading...</span>
-      </div>
-    </main>
-  }
 
   return (
     <div className="min-h-screen bg-[#0b1120] flex items-center justify-center px-4">
@@ -117,9 +107,10 @@ const Login = () => {
 
             <button
               type="submit"
-              className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white transition hover:bg-blue-500 active:bg-blue-700"
+              disabled={loading}
+              className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white transition hover:bg-blue-500 active:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
             >
-              Sign in
+              {loading ? "Logging In" : "Log In"}
             </button>
           </form>
         </div>
