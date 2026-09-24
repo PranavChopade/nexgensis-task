@@ -1,3 +1,5 @@
+import { useNavigate } from "react-router-dom";
+
 const ProductTable = ({
   products,
   handlePrev,
@@ -11,6 +13,7 @@ const ProductTable = ({
   setLimit,
   handlePageChange,
 }) => {
+  const navigate = useNavigate();
 
   return (
     <div className="overflow-hidden rounded-xl border border-slate-800 bg-[#111827]">
@@ -38,7 +41,8 @@ const ProductTable = ({
 
           <tbody className="divide-y divide-slate-800">
             {products.map((product) => (
-              <tr key={product.id} className="transition hover:bg-slate-800/40">
+              <tr key={product.id} className="transition hover:bg-slate-800/40"
+                onClick={() => navigate(`/products/${product.id}`)}>
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-3">
                     <img

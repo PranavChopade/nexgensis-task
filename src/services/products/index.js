@@ -32,3 +32,8 @@ export const sortProducts = async (sortBy, order) => {
   const response = await api.get(`/products?sortBy=${sortBy}&order=${order}`);
   return response.data;
 };
+
+export const fetchProductById = async (id) => {
+  const response = await api.get(`/products/${id}`);
+  return response.data;
+};
