@@ -3,6 +3,7 @@ import Login from "./pages/Login"
 import ProtectedRoute from "./utils/ProtectedRoute"
 import Products from "./pages/Products"
 import ProductDetails from "./pages/ProductDetails"
+import AddProduct from "./pages/AddProduct"
 const App = () => {
   return (
     <Routes>
@@ -12,6 +13,7 @@ const App = () => {
           <Products />
         </ProtectedRoute>} />
       <Route path="/products/:id" element={<ProductDetails />} />
+      <Route path="/products/add" element={<AddProduct />} />
     </Routes>
   )
 }

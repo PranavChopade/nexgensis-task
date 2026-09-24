@@ -3,12 +3,13 @@ import ProductTable from "../components/dashboard/ProductTable"
 import ProductCard from "../components/dashboard/ProductCard"
 import { useEffect, useState } from "react"
 import { fetchCategories, fetchProducts, fetchProductsByCategory, searchProducts, sortProducts } from "../services/products/index"
-import { useSearchParams } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 const Products = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [productsData, setProductsData] = useState([])
   const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate();
   // sorting states
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [categories, setCategories] = useState([]);
@@ -263,7 +264,7 @@ const Products = () => {
             <option value="title-asc">Title: A to Z</option>
             <option value="title-desc">Title: Z to A</option>
           </select>
-
+          <button className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 cursor-pointer" onClick={() => navigate(`/products/add`)}>Add Product</button>
         </div>
         <div className="hidden md:block">
           <ProductTable
