@@ -3,16 +3,18 @@ import ProductTable from "../components/dashboard/ProductTable"
 import ProductCard from "../components/dashboard/ProductCard"
 import { useEffect, useState } from "react"
 import { fetchCategories, fetchProducts, fetchProductsByCategory, searchProducts, sortProducts } from "../services/products/index"
+import { useSearchParams } from "react-router-dom"
 const Products = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [productsData, setProductsData] = useState([])
+  const [searchParams, setSearchParams] = useSearchParams()
   // sorting states
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(searchParams.get("search") || "");
   const [categories, setCategories] = useState([]);
-  const [category, setCategory] = useState("");
-  const [sortBy, setSortBy] = useState("");
-  const [order, setOrder] = useState("asc");
+  const [category, setCategory] = useState(searchParams.get("category") || "");
+  const [sortBy, setSortBy] = useState(searchParams.get("sortBy") || "");
+  const [order, setOrder] = useState(searchParams.get("order") || "asc");
 
   // fetch products
   const fetchData = async () => {
@@ -111,6 +113,19 @@ const Products = () => {
       clearTimeout(timer);
       controller.abort();
     };
+  }, [search, category, sortBy, order]);
+  // setting up params
+  useEffect(() => {
+    const params = {};
+
+    if (search.trim()) params.search = search.trim();
+    if (category) params.category = category;
+    if (sortBy) {
+      params.sortBy = sortBy;
+      params.order = order;
+    }
+
+    setSearchParams(params);
   }, [search, category, sortBy, order]);
   if (loading) {
     return (
