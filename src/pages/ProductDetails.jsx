@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { fetchProductById } from '../services/products/index';
 import Navbar from '../components/dashboard/Navbar';
 import Loader from "../components/dashboard/Loader";
+import { deleteProduct } from "../services/products/index";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -10,7 +11,8 @@ const ProductDetails = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
@@ -26,6 +28,21 @@ const ProductDetails = () => {
     };
     fetchProduct();
   }, [id]);
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    setError("");
+
+    try {
+      await deleteProduct(id);
+      navigate("/products");
+    } catch (error) {
+      setError(error.message || "Failed to delete product");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (loading) {
     return (
       <Loader />
@@ -96,6 +113,14 @@ const ProductDetails = () => {
               >
                 Edit Product
               </button>
+
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(true)}
+                className="rounded-lg border border-red-500/40 px-5 py-2.5 text-sm font-medium text-red-400 hover:bg-red-500/10 cursor-pointer"
+              >
+                Delete Product
+              </button>
             </div>
           </div>
         </div>
@@ -129,6 +154,38 @@ const ProductDetails = () => {
             </p>
           )}
         </section>
+
+        {/* conditional model */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black/60">
+            <div className="w-full max-w-md rounded-xl bg-[#111827] p-6">
+              <h2 className="text-lg font-semibold text-white">
+                Delete Product?
+              </h2>
+
+              <p className="mt-2 text-sm text-slate-400">
+                Are you sure you want to delete this product?
+              </p>
+
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-300 cursor-pointer"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+                >
+                  {deleting ? "Deleting..." : "Delete"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
