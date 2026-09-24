@@ -4,6 +4,7 @@ import ProtectedRoute from "./utils/ProtectedRoute"
 import Products from "./pages/Products"
 import ProductDetails from "./pages/ProductDetails"
 import AddProduct from "./pages/AddProduct"
+import UpdateProduct from "./pages/UpdateProduct"
 const App = () => {
   return (
     <Routes>
@@ -14,6 +15,7 @@ const App = () => {
         </ProtectedRoute>} />
       <Route path="/products/:id" element={<ProductDetails />} />
       <Route path="/products/add" element={<AddProduct />} />
+      <Route path="/products/:id/edit" element={<UpdateProduct />} />
     </Routes>
   )
 }

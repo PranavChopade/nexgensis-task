@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { fetchProductById } from '../services/products/index';
 import Navbar from '../components/dashboard/Navbar';
 import Loader from "../components/dashboard/Loader";
@@ -9,6 +9,7 @@ const ProductDetails = () => {
   const [product, setProduct] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -86,6 +87,15 @@ const ProductDetails = () => {
                 <p className="text-slate-500">Stock</p>
                 <p className="mt-1 text-white"> {product.stock} </p>
               </div>
+            </div>
+            <div className="mt-8 flex gap-3">
+              <button
+                type="button"
+                onClick={() => navigate(`/products/${product.id}/edit`)}
+                className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-500 cursor-pointer"
+              >
+                Edit Product
+              </button>
             </div>
           </div>
         </div>
