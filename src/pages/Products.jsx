@@ -1,7 +1,7 @@
 import ProductTable from "../components/dashboard/ProductTable"
 import ProductCard from "../components/dashboard/ProductCard"
 import { useEffect, useState } from "react"
-import { fetchCategories, fetchProducts, fetchProductsByCategory, searchProducts, sortProducts } from "../services/products/index"
+import { fetchCategories, fetchProducts, fetchProductsByCategory, searchProducts } from "../services/products/index"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import Loader from "../components/dashboard/Loader"
 const Products = () => {
